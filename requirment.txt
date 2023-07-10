@@ -1,0 +1,9 @@
+pathvalidate-3.0.0
+
+BeautifulSoup4 (4.12.2)
+lxml  (4.9.3)
+urllib3<1.27,>=1.21.1 (1.26.7)
+certifi>=2017.4.17  (2021.10.8)
+charset-normalizer~=2.0.0 (2.0.7)
+idna<4,>=2.5  (2.10)
+soupsieve>1.2 (2.4.1)
