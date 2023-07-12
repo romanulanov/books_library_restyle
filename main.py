@@ -72,7 +72,7 @@ if __name__ == "__main__":
                 break
             except requests.exceptions.HTTPError:
                 logging.error('Ошибка ссылки у книги. Попробую скачать следующую.')
-                eprint(sys.stderr)
+                eprint(f'{sys.stderr}\n')
                 flag_error = True
                 break
             except requests.exceptions.ConnectionError:
@@ -83,7 +83,6 @@ if __name__ == "__main__":
         if flag_error:
             continue
         book = parse_book_page(response)
-        print(book)
         while True:
             try:
                 check_for_redirect(requests.get('https://tululu.org/txt.php', params={"id": index}))
