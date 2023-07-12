@@ -42,6 +42,26 @@ def download_image(url, filename, folder='images/'):
         file.write(response.content)
     return str
 
+
+def parse_book_page(html_content):
+    soup = BeautifulSoup(html_content, 'lxml')
+    title = soup.find('title')
+    image_url = urljoin('https://tululu.org', soup.find(class_='bookimage').find('a').find('img')['src'])
+    genres, comments = [], []
+    for genre in soup.find_all(class_="d_book"):
+            if genre.find('a') and "Жанр книги:" in genre.text:
+                genres = (genre.text).split("Жанр книги: \xa0")[-1].strip().split(",")
+    comments_soup = soup.find_all(class_='texts')
+    if comments_soup:
+        for comment in comments_soup:
+            comments.append(comment.find(class_='black').text)
+    else:
+        comments.append(" ")
+    book = {"Заголовок: ": title.text.partition(' - ')[0].strip(), "Автор: ": title.text.partition(' - ')[2].split(',')[0].strip(), "Жанр: ": genres, "Обложка: ": image_url, "Комментарии: ": comments}
+    return book
+    
+
+
 if __name__ == "__main__":
     for i in range(1,10):
         response = requests.get(f"https://tululu.org/b{i}")
@@ -50,14 +70,20 @@ if __name__ == "__main__":
         except requests.exceptions.HTTPError as e:  
             continue
         response.raise_for_status()  
-        soup = BeautifulSoup(response.content, 'lxml')
+        book = parse_book_page(response.content)
+        print(book)
+        
+
+
+
+    ''' 
+    скачать жанры
+    soup = BeautifulSoup(response.content, 'lxml')
         for genre in soup.find_all(class_="d_book"):
             if genre.find('a') and "Жанр книги:" in genre.text:
                 print((genre.text).split("Жанр книги: \xa0")[-1].strip().split(","))
-
-
-
-    ''' скачать комментарии
+    
+    скачать комментарии
     for i in range(1,11):
         response = requests.get(f"https://tululu.org/b{i}")
         try:
@@ -85,7 +111,7 @@ if __name__ == "__main__":
             continue
         response.raise_for_status()  
         soup = BeautifulSoup(response.content, 'lxml')
-        image_url = urljoin('https://tululu.org',soup.find(class_='bookimage').find('a').find('img')['src'])
+        image_url = urljoin('https://tululu.org', soup.find(class_='bookimage').find('a').find('img')['src'])
         download_image(image_url, urlsplit(image_url).path.split("/")[-1])
      '''
 
