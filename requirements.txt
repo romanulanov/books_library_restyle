@@ -1,8 +1,9 @@
-pathvalidate-3.0.0
-BeautifulSoup4-4.12.2
-lxml-4.9.3
-urllib3=1.21.1
-certifi-2017.4.17
-charset-normalizer-2.0.0 
-idna-2.5 
-soupsieve=1.2 
+pathvalidate==3.0.0
+BeautifulSoup4==4.12.2
+lxml==4.9.3
+urllib3==2.0.3
+certifi==2020.6.20
+charset-normalizer==2.0.0 
+idna==2.5 
+soupsieve==2.4.1
+requests==2.31.0
