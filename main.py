@@ -43,8 +43,22 @@ def download_image(url, filename, folder='images/'):
     return str
 
 if __name__ == "__main__":
+    for i in range(1,10):
+        response = requests.get(f"https://tululu.org/b{i}")
+        try:
+            check_for_redirect(response) 
+        except requests.exceptions.HTTPError as e:  
+            continue
+        response.raise_for_status()  
+        soup = BeautifulSoup(response.content, 'lxml')
+        for genre in soup.find_all(class_="d_book"):
+            if genre.find('a') and "Жанр книги:" in genre.text:
+                print((genre.text).split("Жанр книги: \xa0")[-1].strip().split(","))
+
+
+
+    ''' скачать комментарии
     for i in range(1,11):
-        
         response = requests.get(f"https://tululu.org/b{i}")
         try:
             check_for_redirect(response) 
@@ -53,14 +67,14 @@ if __name__ == "__main__":
         response.raise_for_status()  
         soup = BeautifulSoup(response.content, 'lxml')
         title = soup.find('title')
-        print(f"Заголовок:{title.text.partition(' - ')[0].strip()}")
+        print(f"title.text.partition(' - ')[0].strip()")
         comments = soup.find_all(class_='texts')
         if comments:
             for comment in comments:
                 print(comment.find(class_='black').text)
         else:
             print(" ")
-
+    '''
     
     ''' скачать обложки
     for i in range(5,11):
