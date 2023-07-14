@@ -15,11 +15,11 @@ def check_for_redirect(response):
         raise requests.exceptions.HTTPError
 
 
-def download_txt(url, filename, folder='books/'):
-    check_for_redirect(requests.get(url))
+def download_txt(url, params, filename, folder='books/'):
     filename = sanitize_filename(filename)
-    response = requests.get(url)
+    response = requests.get(url, params)
     response.raise_for_status()
+    check_for_redirect(requests.get(url, params))
     os.makedirs(folder, exist_ok=True)
     full_path = os.path.join(folder, f'{filename}')
     with open(full_path, 'wb') as file:
@@ -28,9 +28,9 @@ def download_txt(url, filename, folder='books/'):
 
 
 def download_image(url, filename, folder='images/'):
-    check_for_redirect(requests.get(url))
     response = requests.get(url)
     response.raise_for_status()
+    check_for_redirect(requests.get(url))
     os.makedirs(folder, exist_ok=True)
     full_path = os.path.join(folder, f'{filename}')
     with open(full_path, 'wb') as file:
@@ -39,7 +39,6 @@ def download_image(url, filename, folder='images/'):
 
 
 def parse_book_page(response):
-    check_for_redirect(requests.get(response.url))
     html_content = response.content
     soup = BeautifulSoup(html_content, 'lxml')
     title = soup.find('title')
@@ -54,7 +53,8 @@ def parse_book_page(response):
     book = {
         "Title": title.text.partition(' - ')[0].strip(),
         "Author": title.text.partition(' - ')[2].split(',')[0].strip(),
-        "Genre": genres, "Comments": comments,
+        "Genre": genres, 
+        "Comments": comments,
         "Cover": image_url,
         }
     return book
@@ -78,8 +78,9 @@ if __name__ == "__main__":
             try:
                 response = requests.get(f"https://tululu.org/b{index}")
                 response.raise_for_status()
+                check_for_redirect(requests.get(response.url))
                 book = parse_book_page(response)
-                download_txt(requests.get('https://tululu.org/txt.php', params={"id": index}).url, f'{index}. {book["Title"]}.txt')
+                download_txt('https://tululu.org/txt.php', {"id": index}, f'{index}. {book["Title"]}.txt')
                 download_image(book['Cover'], f'{index}.jpg')
                 print(f'Название: {book["Title"]}\nАвтор: {book["Author"]}\n')
                 break
@@ -89,6 +90,6 @@ if __name__ == "__main__":
                 break
             except requests.exceptions.ConnectionError:
                 logging.error('Ошибка сети. Попробую переподключиться через минуту.')
-                print(sys.stderr)
+                print(f'{sys.stderr}\n')
                 sleep(60)
-                pass
+                continue
