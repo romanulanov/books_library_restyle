@@ -7,7 +7,8 @@ from time import sleep
 from bs4 import BeautifulSoup
 from argparse import RawTextHelpFormatter
 from pathvalidate import sanitize_filename
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlencode
+
 
 
 def check_for_redirect(response):
