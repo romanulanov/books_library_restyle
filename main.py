@@ -11,8 +11,8 @@ from urllib.parse import urljoin, urlencode
 
 
 
-def check_for_redirect(response):
-    if response.url == "https://tululu.org/":
+def check_for_redirect(url):
+    if url == "https://tululu.org/":
         raise requests.exceptions.HTTPError
 
 
@@ -20,7 +20,7 @@ def download_txt(url, params, filename, folder='books/'):
     filename = sanitize_filename(filename)
     response = requests.get(url, params)
     response.raise_for_status()
-    check_for_redirect(requests.get(url, params))
+    check_for_redirect(response.url)
     os.makedirs(folder, exist_ok=True)
     full_path = os.path.join(folder, f'{filename}')
     with open(full_path, 'wb') as file:
@@ -31,7 +31,7 @@ def download_txt(url, params, filename, folder='books/'):
 def download_image(url, filename, folder='images/'):
     response = requests.get(url)
     response.raise_for_status()
-    check_for_redirect(requests.get(url))
+    check_for_redirect(url)
     os.makedirs(folder, exist_ok=True)
     full_path = os.path.join(folder, f'{filename}')
     with open(full_path, 'wb') as file:
@@ -79,7 +79,7 @@ if __name__ == "__main__":
             try:
                 response = requests.get(f"https://tululu.org/b{index}")
                 response.raise_for_status()
-                check_for_redirect(requests.get(response.url))
+                check_for_redirect(response.url)
                 book = parse_book_page(response)
                 download_txt('https://tululu.org/txt.php', {"id": index}, f'{index}. {book["Title"]}.txt')
                 download_image(book['Cover'], f'{index}.jpg')
