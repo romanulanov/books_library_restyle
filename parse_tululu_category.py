@@ -42,15 +42,15 @@ def download_image(url, filename, folder='images/'):
 def parse_book_page(response):
     html_content = response.content
     soup = BeautifulSoup(html_content, 'lxml')
-    title = soup.find('title')
-    image_url = urljoin(response.url, soup.find(class_='bookimage').find('a').find('img')['src'])
+    title = soup.select_one("title")
+    image_url = urljoin(response.url, soup.select_one('.bookimage a img')['src'])
     genres, comments = [], []
-    for genre in soup.find_all(class_="d_book"):
-        if genre.find('a') and "Жанр книги:" in genre.text:
+    for genre in soup.select(".d_book"):
+        if genre.select_one('a') and "Жанр книги:" in genre.text:
             genres = (genre.text).split("Жанр книги: \xa0")[-1].strip().split(",")
-    comments_soup = soup.find_all(class_='texts')
+    comments_soup = soup.select('.texts')
     for comment in comments_soup:
-        comments.append(comment.find(class_='black').text)
+        comments.append(comment.select_one('.black').text)
     book = {
         "title": title.text.partition(' - ')[0].strip(),
         "author": title.text.partition(' - ')[2].split(',')[0].strip(),
@@ -59,21 +59,20 @@ def parse_book_page(response):
         "comments": comments,
         "genres": genres, 
         }
+    print(book)
     return book
-
-
 
 
 def main():
     books = []
     books_url = []
-    for page_num in range(1, 2):
+    for page_num in range(1, 11):
         response = requests.get(f"https://tululu.org/l55/{page_num}")
         response.raise_for_status()
         soup = BeautifulSoup(response.content, 'lxml')
-        book_soups = soup.find_all(class_="ow_px_td")
+        book_soups = soup.select(".ow_px_td")
         for book in book_soups:
-            for book_url in book.find_all('a'):
+            for book_url in book.select('a'):
                 if '/b' in book_url['href'] and urljoin("https://tululu.org/", book_url['href']) not in books_url:
                     books_url.append(urljoin("https://tululu.org/", book_url['href']))
         
@@ -105,10 +104,6 @@ def main():
 
     with open('books.json', 'w', encoding='utf8') as json_file:
         json.dump(books, json_file, ensure_ascii=False)    
-
-    #books = json.dumps(books, ensure_ascii=False)
-    #with open("books.json", "w", encoding='utf8') as my_file:
-    #    my_file.write(books, "\n" , ensure_ascii=False)
 
 
 if __name__ == "__main__":
