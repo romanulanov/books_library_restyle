@@ -1,5 +1,6 @@
-import argparse
 import requests
+import json
+import argparse
 import os
 import logging
 import sys
@@ -7,7 +8,7 @@ from time import sleep
 from bs4 import BeautifulSoup
 from argparse import RawTextHelpFormatter
 from pathvalidate import sanitize_filename
-from urllib.parse import urljoin, urlencode
+from urllib.parse import urljoin, urlparse, urlencode
 
 
 def check_for_redirect(url):
@@ -51,38 +52,45 @@ def parse_book_page(response):
     for comment in comments_soup:
         comments.append(comment.find(class_='black').text)
     book = {
-        "Title": title.text.partition(' - ')[0].strip(),
-        "Author": title.text.partition(' - ')[2].split(',')[0].strip(),
-        "Genre": genres, 
-        "Comments": comments,
-        "Cover": image_url,
+        "title": title.text.partition(' - ')[0].strip(),
+        "author": title.text.partition(' - ')[2].split(',')[0].strip(),
+        "img_src": image_url,
+        "book_path": f"books/{title.text.partition(' - ')[0].strip()}.txt",
+        "comments": comments,
+        "genres": genres, 
         }
     return book
 
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser = argparse.ArgumentParser(
-        description='''Программа для скачивания книг с сайта https://tululu.org
-        .\nБез заданных значений скачает по умолчанию с 1 по 10 книги:\n
-        python main.py\nДля того, чтобы скачать книги, задайте значения
-        для --start_id и --end_id, например команда: \n
-        python main.py --start_id = 20 --end_id=30\n
-        скачает с 20 по 30 книги.''',
-        formatter_class=RawTextHelpFormatter)
-    parser.add_argument('--start_id',  default=1, type=int, help='Введите id книги, c которой начнётся скачивание (по умолчанию 1)')
-    parser.add_argument('--end_id',  default=10, type=int, help='Введите id книги, на котором скачивание закончится (по умолчанию 10)')
-    args = parser.parse_args()
-    for index in range(args.start_id, args.end_id + 1):
+
+
+def main():
+    books = []
+    books_url = []
+    for page_num in range(1, 2):
+        response = requests.get(f"https://tululu.org/l55/{page_num}")
+        response.raise_for_status()
+        soup = BeautifulSoup(response.content, 'lxml')
+        book_soups = soup.find_all(class_="ow_px_td")
+        for book in book_soups:
+            for book_url in book.find_all('a'):
+                if '/b' in book_url['href'] and urljoin("https://tululu.org/", book_url['href']) not in books_url:
+                    books_url.append(urljoin("https://tululu.org/", book_url['href']))
+        
+    
+    for book_url in books_url:
         while True:
             try:
-                response = requests.get(f"https://tululu.org/b{index}")
+                response = requests.get(book_url)
                 response.raise_for_status()
                 check_for_redirect(response.url)
                 book = parse_book_page(response)
-                download_txt('https://tululu.org/txt.php', {"id": index}, f'{index}. {book["Title"]}.txt')
-                download_image(book['Cover'], f'{index}.jpg')
-                print(f'Название: {book["Title"]}\nАвтор: {book["Author"]}\n')
+                books.append(book)
+                path = urlparse(book_url).path
+                index = path[path.find('b')+1:-1]
+                download_txt('https://tululu.org/txt.php', {"id": index}, f'{index}. {book["title"]}.txt')
+                download_image(book['img_src'], f'{index}.jpg')
+                print(f'Название: {book["title"]}\nАвтор: {book["author"]}\n')
                 break
             except requests.exceptions.HTTPError:
                 logging.error('Ошибка ссылки у книги. Попробую скачать следующую.')
@@ -93,3 +101,15 @@ if __name__ == "__main__":
                 print(f'{sys.stderr}\n')
                 sleep(60)
                 continue
+    print(books)
+
+    with open('books.json', 'w', encoding='utf8') as json_file:
+        json.dump(books, json_file, ensure_ascii=False)    
+
+    #books = json.dumps(books, ensure_ascii=False)
+    #with open("books.json", "w", encoding='utf8') as my_file:
+    #    my_file.write(books, "\n" , ensure_ascii=False)
+
+
+if __name__ == "__main__":
+    main()
