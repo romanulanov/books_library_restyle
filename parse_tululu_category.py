@@ -57,7 +57,7 @@ def parse_book_page(response):
         "img_src": image_url,
         "book_path": f"books/{title.text.partition(' - ')[0].strip()}.txt",
         "comments": comments,
-        "genres": genres, 
+        "genres": genres,
         }
     return book
 
@@ -65,8 +65,8 @@ def parse_book_page(response):
 def main():
     parser = argparse.ArgumentParser()
     parser = argparse.ArgumentParser(
-        description='''Программа для скачивания книг в жанре научной фантастики 
-        с сайта https://tululu.org.\nБез заданных значений скачает все книги 
+        description='''Программа для скачивания книг в жанре научной фантастики
+        с сайта https://tululu.org.\nБез заданных значений скачает все книги
         с 1 по 701 страницу.\n
         python main.py\nДля того, чтобы скачать книги, задайте значения
         для --start_page и --end_page, например команда: \n
@@ -89,8 +89,6 @@ def main():
             for book_url in book.select('a'):
                 if '/b' in book_url['href'] and urljoin("https://tululu.org/", book_url['href']) not in books_url:
                     books_url.append(urljoin("https://tululu.org/", book_url['href']))
-        
-    
     for book_url in books_url:
         while True:
             try:
@@ -104,9 +102,9 @@ def main():
                 if args.dest_folder:
                     download_image(book['img_src'], f'{index}.jpg', f'{args.dest_folder}/images')
                     download_txt('https://tululu.org/txt.php', {"id": index}, f'{index}. {book["title"]}.txt', f'{args.dest_folder}/books/')
-                if not(args.skip_imgs):
+                if not (args.skip_imgs):
                     download_image(book['img_src'], f'{index}.jpg')
-                if not(args.skip_txt):
+                if not (args.skip_txt):
                     download_txt('https://tululu.org/txt.php', {"id": index}, f'{index}. {book["title"]}.txt')
                 print(book_url)
                 break
@@ -121,7 +119,7 @@ def main():
                 continue
     if args.dest_folder:
         with open(f'{args.dest_folder}/books.json', 'w', encoding='utf8') as json_file:
-            json.dump(books, json_file, ensure_ascii=False)    
+            json.dump(books, json_file, ensure_ascii=False)
 
 
 if __name__ == "__main__":
