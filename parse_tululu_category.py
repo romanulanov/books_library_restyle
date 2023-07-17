@@ -59,14 +59,25 @@ def parse_book_page(response):
         "comments": comments,
         "genres": genres, 
         }
-    print(book)
     return book
 
 
 def main():
-    books = []
-    books_url = []
-    for page_num in range(1, 11):
+    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(
+        description='''Программа для скачивания книг с сайта https://tululu.org
+        .\nБез заданных значений скачает по умолчанию с 1 по 10 книги:\n
+        python main.py\nДля того, чтобы скачать книги, задайте значения
+        для --start_id и --end_id, например команда: \n
+        python main.py --start_id = 20 --end_id=30\n
+        скачает с 20 по 30 книги.''',
+        formatter_class=RawTextHelpFormatter)
+    parser.add_argument('--start_page',  default=1, type=int, help='Введите id книги, c которой начнётся скачивание (по умолчанию 1)')
+    parser.add_argument('--end_page',  default=702, type=int, help='Введите id книги, на котором скачивание закончится (по умолчанию 10)')
+    args = parser.parse_args()
+    
+    books, books_url = [], []
+    for page_num in range(args.start_page, args.end_page + 1):
         response = requests.get(f"https://tululu.org/l55/{page_num}")
         response.raise_for_status()
         soup = BeautifulSoup(response.content, 'lxml')
@@ -89,7 +100,7 @@ def main():
                 index = path[path.find('b')+1:-1]
                 download_txt('https://tululu.org/txt.php', {"id": index}, f'{index}. {book["title"]}.txt')
                 download_image(book['img_src'], f'{index}.jpg')
-                print(f'Название: {book["title"]}\nАвтор: {book["author"]}\n')
+                print(book_url)
                 break
             except requests.exceptions.HTTPError:
                 logging.error('Ошибка ссылки у книги. Попробую скачать следующую.')
@@ -100,8 +111,6 @@ def main():
                 print(f'{sys.stderr}\n')
                 sleep(60)
                 continue
-    print(books)
-
     with open('books.json', 'w', encoding='utf8') as json_file:
         json.dump(books, json_file, ensure_ascii=False)    
 
