@@ -65,17 +65,20 @@ def parse_book_page(response):
 def main():
     parser = argparse.ArgumentParser()
     parser = argparse.ArgumentParser(
-        description='''Программа для скачивания книг с сайта https://tululu.org
-        .\nБез заданных значений скачает по умолчанию с 1 по 10 книги:\n
+        description='''Программа для скачивания книг в жанре научной фантастики 
+        с сайта https://tululu.org.\nБез заданных значений скачает все книги 
+        с 1 по 701 страницу.\n
         python main.py\nДля того, чтобы скачать книги, задайте значения
-        для --start_id и --end_id, например команда: \n
-        python main.py --start_id = 20 --end_id=30\n
-        скачает с 20 по 30 книги.''',
+        для --start_page и --end_page, например команда: \n
+        python main.py --start_page = 20 --end_page=30\n
+        скачает книги с 20 по 30 страницу.''',
         formatter_class=RawTextHelpFormatter)
-    parser.add_argument('--start_page',  default=1, type=int, help='Введите id книги, c которой начнётся скачивание (по умолчанию 1)')
-    parser.add_argument('--end_page',  default=702, type=int, help='Введите id книги, на котором скачивание закончится (по умолчанию 10)')
+    parser.add_argument('--start_page',  default=1, type=int, help='Введите номер страницы, c которой начнётся скачивание (по умолчанию 1)')
+    parser.add_argument('--end_page',  default=702, type=int, help='Введите номер страницы, на котором скачивание закончится (по умолчанию 701)')
+    parser.add_argument('--dest_folder', default="", type=str, help='Введите путь к каталогу с результатами парсинга (по умолчанию всё сохраняется в корневой каталог проекта)')
+    parser.add_argument('--skip_imgs', default=False, action='store_true', help='Введите в запросе --skip_imgs, чтобы не скачивать картинки')
+    parser.add_argument('--skip_txt', default=False, action='store_true', help='Введите в запросе --skip_txt, чтобы не скачивать книги')
     args = parser.parse_args()
-    
     books, books_url = [], []
     for page_num in range(args.start_page, args.end_page + 1):
         response = requests.get(f"https://tululu.org/l55/{page_num}")
@@ -96,10 +99,15 @@ def main():
                 check_for_redirect(response.url)
                 book = parse_book_page(response)
                 books.append(book)
-                path = urlparse(book_url).path
-                index = path[path.find('b')+1:-1]
-                download_txt('https://tululu.org/txt.php', {"id": index}, f'{index}. {book["title"]}.txt')
-                download_image(book['img_src'], f'{index}.jpg')
+                url_path = urlparse(book_url).path
+                index = url_path[url_path.find('b')+1:-1]
+                if args.dest_folder:
+                    download_image(book['img_src'], f'{index}.jpg', f'{args.dest_folder}/images')
+                    download_txt('https://tululu.org/txt.php', {"id": index}, f'{index}. {book["title"]}.txt', f'{args.dest_folder}/books/')
+                if not(args.skip_imgs):
+                    download_image(book['img_src'], f'{index}.jpg')
+                if not(args.skip_txt):
+                    download_txt('https://tululu.org/txt.php', {"id": index}, f'{index}. {book["title"]}.txt')
                 print(book_url)
                 break
             except requests.exceptions.HTTPError:
@@ -111,8 +119,9 @@ def main():
                 print(f'{sys.stderr}\n')
                 sleep(60)
                 continue
-    with open('books.json', 'w', encoding='utf8') as json_file:
-        json.dump(books, json_file, ensure_ascii=False)    
+    if args.dest_folder:
+        with open(f'{args.dest_folder}/books.json', 'w', encoding='utf8') as json_file:
+            json.dump(books, json_file, ensure_ascii=False)    
 
 
 if __name__ == "__main__":
