@@ -85,6 +85,7 @@ def main():
             try:
                 response = requests.get(f"https://tululu.org/l55/{page_num}")
                 response.raise_for_status()
+                check_for_redirect(response.url)
                 soup = BeautifulSoup(response.content, 'lxml')
                 book_soups = soup.select(".ow_px_td")
                 for book in book_soups:
