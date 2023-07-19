@@ -81,14 +81,26 @@ def main():
 
     books, books_url = [], []
     for page_num in range(args.start_page, args.end_page + 1):
-        response = requests.get(f"https://tululu.org/l55/{page_num}")
-        response.raise_for_status()
-        soup = BeautifulSoup(response.content, 'lxml')
-        book_soups = soup.select(".ow_px_td")
-        for book in book_soups:
-            for book_url in book.select('a'):
-                if '/b' in book_url['href'] and urljoin("https://tululu.org/", book_url['href']) not in books_url:
-                    books_url.append(urljoin("https://tululu.org/", book_url['href']))
+        while True:
+            try:
+                response = requests.get(f"https://tululu.org/l55/{page_num}")
+                response.raise_for_status()
+                soup = BeautifulSoup(response.content, 'lxml')
+                book_soups = soup.select(".ow_px_td")
+                for book in book_soups:
+                    for book_url in book.select('a'):
+                        if '/b' in book_url['href'] and urljoin("https://tululu.org/", book_url['href']) not in books_url:
+                            books_url.append(urljoin("https://tululu.org/", book_url['href']))
+                break
+            except requests.exceptions.HTTPError:
+                logging.error('Ошибка ссылки у страницы. Попробую скачать следующую.')
+                print(f'{sys.stderr}\n')
+                break
+            except requests.exceptions.ConnectionError:
+                logging.error('Ошибка сети. Попробую переподключиться через минуту.')
+                print(f'{sys.stderr}\n')
+                sleep(60)
+                continue
 
     for book_url in books_url:
         while True:
@@ -110,7 +122,7 @@ def main():
                     download_txt('https://tululu.org/txt.php', {"id": index}, f'{index}. {book["title"]}.txt')
                 print(book_url)
                 break
-            
+
             except requests.exceptions.HTTPError:
                 logging.error('Ошибка ссылки у книги. Попробую скачать следующую.')
                 print(f'{sys.stderr}\n')
