@@ -116,7 +116,7 @@ def main():
                 index = url_path[url_path.find('b')+1:-1]
 
                 params, filename = {"id": index}, f'{index}. {book["title"]}.txt'
-                folder_book  = f'books/' 
+                folder_book = f'books/'
                 folder_image = f'images/'
                 folder_json = ""
                 if args.dest_folder:
