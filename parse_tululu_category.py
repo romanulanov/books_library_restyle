@@ -11,7 +11,6 @@ from pathvalidate import sanitize_filename
 from urllib.parse import urljoin, urlparse, urlencode
 
 
-
 def check_for_redirect(url):
     if url == "https://tululu.org/":
         raise requests.exceptions.HTTPError
@@ -44,7 +43,8 @@ def parse_book_page(response):
     html_content = response.content
     soup = BeautifulSoup(html_content, 'lxml')
     title = soup.select_one("title")
-    image_url = urljoin(response.url, soup.select_one('.bookimage a img')['src'])
+    image_url = urljoin(response.url,
+                        soup.select_one('.bookimage a img')['src'])
     genres, comments = [], []
     for genre in soup.select(".d_book"):
         if genre.select_one('a') and "Жанр книги:" in genre.text:
@@ -115,14 +115,17 @@ def main():
                 url_path = urlparse(book_url).path
                 index = url_path[url_path.find('b')+1:-1]
 
+                params, filename = {"id": index}, f'{index}. {book["title"]}.txt'
+                folder_book, folder_image, folder_json = f'books/', f'images/', ""
                 if args.dest_folder:
-                    params, filename, folder = {"id": index}, f'{index}. {book["title"]}.txt', f'{args.dest_folder}/books/'
-                    download_image(book['img_src'], f'{index}.jpg', f'{args.dest_folder}/images')
-                    download_txt('https://tululu.org/txt.php', params, filename, folder)
-                if not args.skip_imgs:
-                    download_image(book['img_src'], f'{index}.jpg')
-                if not args.skip_txt:
-                    download_txt('https://tululu.org/txt.php',  params, filename)
+                    folder_book, folder_image, folder_json = f'{args.dest_folder}/books/'.strip(), f'{args.dest_folder}/images'.strip(), f'{args.dest_folder}/'.strip()
+                if not args.skip_imgs and not args.skip_txt:
+                    download_txt('https://tululu.org/txt.php',  params, filename, folder_book)
+                    download_image(book['img_src'], f'{index}.jpg', folder_image)
+                elif args.skip_imgs and not args.skip_txt:
+                    download_txt('https://tululu.org/txt.php',  params, filename, folder_book)
+                elif args.skip_txt and not args.skip_imgs:
+                    download_image(book['img_src'], f'{index}.jpg', folder_image)
                 break
 
             except requests.exceptions.HTTPError:
@@ -135,9 +138,8 @@ def main():
                 sleep(60)
                 continue
 
-    if args.dest_folder:
-        with open(f'{args.dest_folder}/books.json', 'w', encoding='utf8') as json_file:
-            json.dump(books, json_file, ensure_ascii=False)
+    with open(f'{folder_json}books.json', 'w', encoding='utf8') as json_file:
+        json.dump(books, json_file, ensure_ascii=False)
 
 
 if __name__ == "__main__":
