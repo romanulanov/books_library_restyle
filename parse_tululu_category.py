@@ -78,6 +78,7 @@ def main():
     parser.add_argument('--skip_imgs', default=False, action='store_true', help='Введите в запросе --skip_imgs, чтобы не скачивать картинки')
     parser.add_argument('--skip_txt', default=False, action='store_true', help='Введите в запросе --skip_txt, чтобы не скачивать книги')
     args = parser.parse_args()
+
     books, books_url = [], []
     for page_num in range(args.start_page, args.end_page + 1):
         response = requests.get(f"https://tululu.org/l55/{page_num}")
@@ -88,6 +89,7 @@ def main():
             for book_url in book.select('a'):
                 if '/b' in book_url['href'] and urljoin("https://tululu.org/", book_url['href']) not in books_url:
                     books_url.append(urljoin("https://tululu.org/", book_url['href']))
+
     for book_url in books_url:
         while True:
             try:
@@ -98,6 +100,7 @@ def main():
                 books.append(book)
                 url_path = urlparse(book_url).path
                 index = url_path[url_path.find('b')+1:-1]
+
                 if args.dest_folder:
                     download_image(book['img_src'], f'{index}.jpg', f'{args.dest_folder}/images')
                     download_txt('https://tululu.org/txt.php', {"id": index}, f'{index}. {book["title"]}.txt', f'{args.dest_folder}/books/')
@@ -107,6 +110,7 @@ def main():
                     download_txt('https://tululu.org/txt.php', {"id": index}, f'{index}. {book["title"]}.txt')
                 print(book_url)
                 break
+            
             except requests.exceptions.HTTPError:
                 logging.error('Ошибка ссылки у книги. Попробую скачать следующую.')
                 print(f'{sys.stderr}\n')
@@ -116,6 +120,7 @@ def main():
                 print(f'{sys.stderr}\n')
                 sleep(60)
                 continue
+
     if args.dest_folder:
         with open(f'{args.dest_folder}/books.json', 'w', encoding='utf8') as json_file:
             json.dump(books, json_file, ensure_ascii=False)
