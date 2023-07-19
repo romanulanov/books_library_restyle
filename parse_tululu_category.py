@@ -103,7 +103,7 @@ def main():
                 sleep(60)
                 continue
 
-    for book_url in books_url:
+    for book_url in book_urls:
         while True:
             try:
                 response = requests.get(book_url)
@@ -117,9 +117,9 @@ def main():
                 if args.dest_folder:
                     download_image(book['img_src'], f'{index}.jpg', f'{args.dest_folder}/images')
                     download_txt('https://tululu.org/txt.php', {"id": index}, f'{index}. {book["title"]}.txt', f'{args.dest_folder}/books/')
-                if not (args.skip_imgs):
+                if not args.skip_imgs:
                     download_image(book['img_src'], f'{index}.jpg')
-                if not (args.skip_txt):
+                if not args.skip_txt:
                     download_txt('https://tululu.org/txt.php', {"id": index}, f'{index}. {book["title"]}.txt')
                 print(book_url)
                 break
