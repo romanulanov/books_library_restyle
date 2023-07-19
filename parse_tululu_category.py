@@ -11,6 +11,7 @@ from pathvalidate import sanitize_filename
 from urllib.parse import urljoin, urlparse, urlencode
 
 
+
 def check_for_redirect(url):
     if url == "https://tululu.org/":
         raise requests.exceptions.HTTPError
@@ -121,7 +122,6 @@ def main():
                     download_image(book['img_src'], f'{index}.jpg')
                 if not args.skip_txt:
                     download_txt('https://tululu.org/txt.php', {"id": index}, f'{index}. {book["title"]}.txt')
-                print(book_url)
                 break
 
             except requests.exceptions.HTTPError:
