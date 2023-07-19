@@ -63,7 +63,6 @@ def parse_book_page(response):
 
 
 def main():
-    parser = argparse.ArgumentParser()
     parser = argparse.ArgumentParser(
         description='''Программа для скачивания книг в жанре научной фантастики
         с сайта https://tululu.org.\nБез заданных значений скачает все книги
