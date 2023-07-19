@@ -79,7 +79,7 @@ def main():
     parser.add_argument('--skip_txt', default=False, action='store_true', help='Введите в запросе --skip_txt, чтобы не скачивать книги')
     args = parser.parse_args()
 
-    books, books_url = [], []
+    books, book_urls = [], []
     for page_num in range(args.start_page, args.end_page + 1):
         while True:
             try:
@@ -90,8 +90,8 @@ def main():
                 book_soups = soup.select(".ow_px_td")
                 for book in book_soups:
                     for book_url in book.select('a'):
-                        if '/b' in book_url['href'] and urljoin("https://tululu.org/", book_url['href']) not in books_url:
-                            books_url.append(urljoin("https://tululu.org/", book_url['href']))
+                        if '/b' in book_url['href'] and urljoin("https://tululu.org/", book_url['href']) not in book_urls:
+                            book_urls.append(urljoin("https://tululu.org/", book_url['href']))
                 break
             except requests.exceptions.HTTPError:
                 logging.error('Ошибка ссылки у страницы. Попробую скачать следующую.')
