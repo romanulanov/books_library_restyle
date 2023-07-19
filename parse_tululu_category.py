@@ -116,15 +116,14 @@ def main():
                 index = url_path[url_path.find('b')+1:-1]
 
                 params, filename = {"id": index}, f'{index}. {book["title"]}.txt'
-                folder_book, folder_image, folder_json = f'books/', f'images/', ""
+                folder_book  = f'books/' 
+                folder_image = f'images/'
+                folder_json = ""
                 if args.dest_folder:
                     folder_book, folder_image, folder_json = f'{args.dest_folder}/books/'.strip(), f'{args.dest_folder}/images'.strip(), f'{args.dest_folder}/'.strip()
-                if not args.skip_imgs and not args.skip_txt:
+                if args.skip_imgs:
                     download_txt('https://tululu.org/txt.php',  params, filename, folder_book)
-                    download_image(book['img_src'], f'{index}.jpg', folder_image)
-                elif args.skip_imgs and not args.skip_txt:
-                    download_txt('https://tululu.org/txt.php',  params, filename, folder_book)
-                elif args.skip_txt and not args.skip_imgs:
+                if args.skip_txt:
                     download_image(book['img_src'], f'{index}.jpg', folder_image)
                 break
 
