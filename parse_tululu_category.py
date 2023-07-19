@@ -116,12 +116,13 @@ def main():
                 index = url_path[url_path.find('b')+1:-1]
 
                 if args.dest_folder:
+                    params, filename, folder = {"id": index}, f'{index}. {book["title"]}.txt', f'{args.dest_folder}/books/'
                     download_image(book['img_src'], f'{index}.jpg', f'{args.dest_folder}/images')
-                    download_txt('https://tululu.org/txt.php', {"id": index}, f'{index}. {book["title"]}.txt', f'{args.dest_folder}/books/')
+                    download_txt('https://tululu.org/txt.php', params, filename, folder)
                 if not args.skip_imgs:
                     download_image(book['img_src'], f'{index}.jpg')
                 if not args.skip_txt:
-                    download_txt('https://tululu.org/txt.php', {"id": index}, f'{index}. {book["title"]}.txt')
+                    download_txt('https://tululu.org/txt.php',  params, filename)
                 break
 
             except requests.exceptions.HTTPError:
