@@ -120,7 +120,9 @@ def main():
                 folder_image = f'images/'
                 folder_json = ""
                 if args.dest_folder:
-                    folder_book, folder_image, folder_json = f'{args.dest_folder}/books/'.strip(), f'{args.dest_folder}/images'.strip(), f'{args.dest_folder}/'.strip()
+                    folder_book = f'{args.dest_folder}/books/'.strip()
+                    folder_image = f'{args.dest_folder}/images'.strip()
+                    folder_json = f'{args.dest_folder}/'.strip()
                 if args.skip_imgs:
                     download_txt('https://tululu.org/txt.php',  params, filename, folder_book)
                 if args.skip_txt:
