@@ -8,7 +8,7 @@ from time import sleep
 from bs4 import BeautifulSoup
 from argparse import RawTextHelpFormatter
 from pathvalidate import sanitize_filename
-from urllib.parse import urljoin, urlparse, urlencode
+from urllib.parse import urljoin, urlparse, urlencode, quote
 
 
 def check_for_redirect(url):
@@ -52,11 +52,12 @@ def parse_book_page(response):
     comments_soup = soup.select('.texts')
     for comment in comments_soup:
         comments.append(comment.select_one('.black').text)
+    book_path = title.text.partition(' - ')[0].strip()
     book = {
         "title": title.text.partition(' - ')[0].strip(),
         "author": title.text.partition(' - ')[2].split(',')[0].strip(),
         "img_src": image_url,
-        "book_path": f"books/{title.text.partition(' - ')[0].strip()}.txt",
+        "book_path": quote(f"books{os.sep}{response.url.split('/b')[1][:-1]}. {sanitize_filename(title.text.partition(' - ')[0].strip())}.txt"),
         "comments": comments,
         "genres": genres,
         }
