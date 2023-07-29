@@ -3,6 +3,7 @@ import os
 from livereload import Server, shell
 from more_itertools import chunked
 from jinja2 import Environment, FileSystemLoader, select_autoescape
+import math
 
 env = Environment(
     loader=FileSystemLoader('.'),
@@ -13,14 +14,13 @@ template = env.get_template('template.html')
 
 with open('books.json', encoding='utf-8') as json_file:
     books = json.load(json_file)  
+num_pages = math.ceil(len(books)/10)
 books = list(chunked(books, 10))
-
-#rendered_page = template.render(books=books)
 os.makedirs('pages/', exist_ok=True)
 
-for i, books in enumerate(books, 1):
-    rendered_page = template.render(books=list(chunked(books, 2)))
-    with open(f'pages/index{i}.html', 'w', encoding="utf8") as file:
+for index, books in enumerate(books, 1):
+    rendered_page = template.render(books=list(chunked(books, 2)), num_pages = range(1, num_pages+1), cur_page = index)
+    with open(f'pages/index{index}.html', 'w', encoding="utf8") as file:
         file.write(rendered_page)
 
 
