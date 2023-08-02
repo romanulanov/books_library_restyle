@@ -1,4 +1,4 @@
-![screenshot](https://drive.google.com/file/d/1kLJZUeF5MK_3D2mKutUk7XKs47WqtNLv)
+![screenshot](https://drive.google.com/uc?export=view&id=1kLJZUeF5MK_3D2mKutUk7XKs47WqtNLv)
 
 # Парсер книг с сайта tululu.org
 
