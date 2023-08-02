@@ -1,6 +1,7 @@
-![image](https://drive.google.com/uc?export=view&id=1kLJZUeF5MK_3D2mKutUk7XKs47WqtNLv)
-
 # Парсер книг с сайта tululu.org
+
+![image](https://drive.google.com/uc?export=view&id=1kLJZUeF5MK_3D2mKutUk7XKs47WqtNLv)
+[Ссылка](https://romanulanov.github.io/pages/index1.html) на сайт.
 
 Программа для скачивания книг в жанре научной фантастики с сайта https://tululu.org. В результате выполнения программы вы получите папку со скачанными книгами, папку с обложками книг и JSON-файл с описанием скачанных книжек. 
 
