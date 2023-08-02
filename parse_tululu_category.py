@@ -8,7 +8,7 @@ from time import sleep
 from bs4 import BeautifulSoup
 from argparse import RawTextHelpFormatter
 from pathvalidate import sanitize_filename
-from urllib.parse import urljoin, urlparse, urlencode, quote
+from urllib.parse import urljoin, urlparse, quote
 
 
 def check_for_redirect(url):
@@ -43,8 +43,6 @@ def parse_book_page(response):
     html_content = response.content
     soup = BeautifulSoup(html_content, 'lxml')
     title = soup.select_one("title")
-    image_url = urljoin(response.url,
-                        soup.select_one('.bookimage a img')['src'])
     genres, comments = [], []
     for genre in soup.select(".d_book"):
         if genre.select_one('a') and "Жанр книги:" in genre.text:
@@ -52,15 +50,13 @@ def parse_book_page(response):
     comments_soup = soup.select('.texts')
     for comment in comments_soup:
         comments.append(comment.select_one('.black').text)
-    book_path = title.text.partition(' - ')[0].strip()
     book = {
         "title": title.text.partition(' - ')[0].strip(),
         "author": title.text.partition(' - ')[2].split(',')[0].strip(),
-        "img_src": image_url,
-        "book_path": quote(f"/books{os.sep}{response.url.split('/b')[1][:-1]}. {sanitize_filename(title.text.partition(' - ')[0].strip())}.txt"),
+        "img_src": f"/images/{response.url.split('/b')[1][:-1]}.jpg",
+        "book_path": quote(f"/books/{response.url.split('/b')[1][:-1]}. {title.text.partition(' - ')[0].strip()}.txt"),
         "comments": comments,
         "genres": genres,
-        "image_path":quote(f"/images{os.sep}{response.url.split('/b')[1][:-1]}.jpg"),
         }
     return book
 
@@ -75,11 +71,31 @@ def main():
         python main.py --start_page = 20 --end_page=30\n
         скачает книги с 20 по 30 страницу.''',
         formatter_class=RawTextHelpFormatter)
-    parser.add_argument('--start_page',  default=1, type=int, help='Введите номер страницы, c которой начнётся скачивание (по умолчанию 1)')
-    parser.add_argument('--end_page',  default=702, type=int, help='Введите номер страницы, на котором скачивание закончится (по умолчанию 701)')
-    parser.add_argument('--dest_folder', default="", type=str, help='Введите путь к каталогу с результатами парсинга (по умолчанию всё сохраняется в корневой каталог проекта)')
-    parser.add_argument('--skip_imgs', default=False, action='store_true', help='Введите в запросе --skip_imgs, чтобы не скачивать картинки')
-    parser.add_argument('--skip_txt', default=False, action='store_true', help='Введите в запросе --skip_txt, чтобы не скачивать книги')
+    parser.add_argument('--start_page',
+                        default=1,
+                        type=int,
+                        help='Введите номер страницы, c которой начнётся скачивание (по умолчанию 1)',
+                        )
+    parser.add_argument('--end_page',
+                        default=702,
+                        type=int,
+                        help='Введите номер страницы, на котором скачивание закончится (по умолчанию 701)',
+                        )
+    parser.add_argument('--dest_folder',
+                        default="",
+                        type=str,
+                        help='Введите путь к каталогу с результатами парсинга (по умолчанию всё сохраняется в корневой каталог проекта)',
+                        )
+    parser.add_argument('--skip_imgs',
+                        default=False,
+                        action='store_true',
+                        help='Введите в запросе --skip_imgs, чтобы не скачивать картинки',
+                        )
+    parser.add_argument('--skip_txt',
+                        default=False,
+                        action='store_true',
+                        help='Введите в запросе --skip_txt, чтобы не скачивать книги',
+                        )
     args = parser.parse_args()
 
     books, book_urls = [], []
@@ -118,17 +134,17 @@ def main():
                 index = url_path[url_path.find('b')+1:-1]
 
                 params, filename = {"id": index}, f'{index}. {book["title"]}.txt'
-                folder_book = f'books/'
-                folder_image = f'images/'
+                folder_book = 'books/'
+                folder_image = 'images/'
                 folder_json = ""
                 if args.dest_folder:
                     folder_book = f'{args.dest_folder}/books/'.strip()
                     folder_image = f'{args.dest_folder}/images'.strip()
                     folder_json = f'{args.dest_folder}/'.strip()
-                #if args.skip_imgs:
-                download_txt('https://tululu.org/txt.php',  params, filename, folder_book)
-                #if args.skip_txt:
-                download_image(book['img_src'], f'{index}.jpg', folder_image)
+                if args.skip_imgs:
+                    download_txt('https://tululu.org/txt.php',  params, filename, folder_book)
+                if args.skip_txt:
+                    download_image(book['img_src'], f'{index}.jpg', folder_image)
                 break
 
             except requests.exceptions.HTTPError:
