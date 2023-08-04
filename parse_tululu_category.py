@@ -18,7 +18,7 @@ def check_for_redirect(url):
         raise requests.exceptions.HTTPError
 
 
-def download_txt(url, params, filename, folder='books/'):
+def download_txt(url, params, filename, folder='media/books/'):
     filename = sanitize_filename(filename)
     response = requests.get(url, params)
     response.raise_for_status()
@@ -30,7 +30,7 @@ def download_txt(url, params, filename, folder='books/'):
     return full_path
 
 
-def download_image(url, filename, folder='images/'):
+def download_image(url, filename, folder='media/images/'):
     response = requests.get(url)
     response.raise_for_status()
     check_for_redirect(url)
@@ -46,6 +46,8 @@ def parse_book_page(response):
     soup = BeautifulSoup(html_content, 'lxml')
     title = soup.select_one("title")
     genres, comments = [], []
+    image_url = urljoin(response.url,
+                        soup.select_one('.bookimage a img')['src'])
     for genre in soup.select(".d_book"):
         if genre.select_one('a') and "Жанр книги:" in genre.text:
             genres = (genre.text).split("Жанр книги: \xa0")[-1].strip().split(",")
@@ -55,8 +57,9 @@ def parse_book_page(response):
     book = {
         "title": title.text.partition(' - ')[0].strip(),
         "author": title.text.partition(' - ')[2].split(',')[0].strip(),
-        "img_src": f"/images/{response.url.split('/b')[1][:-1]}.jpg",
-        "book_path": quote(f"/books/{response.url.split('/b')[1][:-1]}. {title.text.partition(' - ')[0].strip()}.txt"),
+        "img_url": image_url,
+        "img_src": f"/media/images/{response.url.split('/b')[1][:-1]}.jpg",
+        "book_path": quote(f"/media/books/{response.url.split('/b')[1][:-1]}. {title.text.partition(' - ')[0].strip()}.txt"),
         "comments": comments,
         "genres": genres,
         }
@@ -136,17 +139,17 @@ def main():
                 index = url_path[url_path.find('b')+1:-1]
 
                 params, filename = {"id": index}, f'{index}. {book["title"]}.txt'
-                folder_book = 'books/'
-                folder_image = 'images/'
+                folder_book = 'media/books/'
+                folder_image = 'media/images/'
                 folder_json = ""
                 if args.dest_folder:
-                    folder_book = f'{args.dest_folder}/books/'.strip()
-                    folder_image = f'{args.dest_folder}/images'.strip()
+                    folder_book = f'{args.dest_folder}/media/books/'.strip()
+                    folder_image = f'{args.dest_folder}/media/images'.strip()
                     folder_json = f'{args.dest_folder}/'.strip()
-                if args.skip_imgs:
-                    download_txt('https://tululu.org/txt.php',  params, filename, folder_book)
-                if args.skip_txt:
-                    download_image(book['img_src'], f'{index}.jpg', folder_image)
+                #if args.skip_imgs:
+                download_txt('https://tululu.org/txt.php',  params, filename, folder_book)
+                #if args.skip_txt:
+                download_image(book['img_url'], f'{index}.jpg', folder_image)
                 break
 
             except requests.exceptions.HTTPError:
