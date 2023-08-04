@@ -1,12 +1,14 @@
 import requests
 import json
-import argparse
 import os
 import logging
 import sys
-from time import sleep
-from bs4 import BeautifulSoup
+
+import argparse
 from argparse import RawTextHelpFormatter
+
+from bs4 import BeautifulSoup
+from time import sleep
 from pathvalidate import sanitize_filename
 from urllib.parse import urljoin, urlparse, quote
 
