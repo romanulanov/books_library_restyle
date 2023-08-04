@@ -75,7 +75,7 @@ def main():
         с сайта https://tululu.org.\nБез заданных значений скачает все книги
         с 1 по 701 страницу:
         python parse_tululu_category.py\nДля того, чтобы скачать книги, задайте значения
-        для --start_page и --end_page, например команда: 
+        для --start_page и --end_page, например команда:
         python parse_tululu_category.py --start_page = 20 --end_page=30
         скачает книги с 20 по 30 страницу.''',
         formatter_class=RawTextHelpFormatter)
@@ -150,10 +150,10 @@ def main():
                     folder_book = f'{args.dest_folder}/media/books/'.strip()
                     folder_image = f'{args.dest_folder}/media/images'.strip()
                     folder_json = f'{args.dest_folder}/'.strip()
-                #if args.skip_imgs:
-                download_txt('https://tululu.org/txt.php',  params, filename, folder_book)
-                #if args.skip_txt:
-                download_image(book['img_url'], f'{index}.jpg', folder_image)
+                if args.skip_imgs:
+                    download_txt('https://tululu.org/txt.php',  params, filename, folder_book)
+                if args.skip_txt:
+                    download_image(book['img_url'], f'{index}.jpg', folder_image)
                 break
 
             except requests.exceptions.HTTPError:
