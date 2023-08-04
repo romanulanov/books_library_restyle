@@ -1,9 +1,9 @@
-# Парсер книг с сайта tululu.org
+# Оффлайн библиотека книг с сайта tululu.org
 
-![image](https://drive.google.com/uc?export=view&id=1kLJZUeF5MK_3D2mKutUk7XKs47WqtNLv)
+![image](https://drive.google.com/uc?export=view&id=16Zmjfp5_0b341rt-X8Te2pvDmr-uGF7a)
 [Ссылка](https://romanulanov.github.io/pages/index1.html) на сайт.
 
-Программа для скачивания книг в жанре научной фантастики с сайта https://tululu.org. В результате выполнения программы вы получите папку со скачанными книгами, папку с обложками книг и JSON-файл с описанием скачанных книжек. 
+Программа для вёрстки сайта-библиотеки в жанре научной фантастики.  
 
 ### Как установить
 
@@ -15,6 +15,16 @@ pip install -r requirements.txt
 
 ### Аргументы
 
+Чтобы сверстать сайт вам понадобится json-каталог внутри проекта и файлы в папке media (внутри в папке books  хранятся txt книг, а в images их обложки). Напишите в окружении  
+```
+python render_website.py
+```
+и откройте первую страницу библиотеки по адресу [http://127.0.0.1:5500/pages/index1.html](http://127.0.0.1:5500/pages/index1.html). Страницы сайта хранятся в папке pages. 
+Если у вас есть свой каталог, укажите полный путь к нему в dest_json, например:
+```
+python render_website.py --dest_json C:\Users\User\Desktop\books.json
+```
+Ниже описаны способы скачивания книг.
 Без заданных значений программа будет скачивать все книги в жанре научной фантастики (с 1 по 701 страницу). Для этого напишите в окружении просто:
 ```
 python parse_tululu_category.py
