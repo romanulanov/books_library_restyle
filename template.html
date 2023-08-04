@@ -14,59 +14,59 @@
   <body>
     <div class="container">
       <nav aria-label="Page navigation example">
-      <ul class="pagination">
-        <li class="page-item">
-          {% if cur_page == 1 %}
-            <a class="page-link" href="#" aria-label="Previous">Предыдущая
-          {% else %}
-            <a class="page-link" href="index{{cur_page-1}}.html" aria-label="Previous">Предыдущая 
-          {% endif %}
+        <ul class="pagination">
+          <li class="page-item">
+            {% if cur_page == 1 %}
+              <a class="page-link" href="#" aria-label="Previous">Предыдущая
+            {% else %}
+              <a class="page-link" href="index{{cur_page-1}}.html" aria-label="Previous">Предыдущая 
+            {% endif %}
             </a>
-        </li>
-        {% for page in num_pages %}
-          {% if cur_page == page %}
-            <li class="page-item active" aria-current="page">
-              <a class="page-link" href="#">{{page}}<span class="sr-only">(current)</span></a>
-            </li>
-          {% else %}
-            <li class="page-item"><a class="page-link" href="index{{page}}.html">{{page}}</a></li>
-          {% endif %}
-        {% endfor %}
-        <li class="page-item">
-          {% if cur_page == num_pages[-1] %}
-            <a class="page-link" href="#" aria-label="Previous">Следующая
-          {% else %}
-            <a class="page-link" href="index{{cur_page+1}}.html" aria-label="Next">Следующая
-          {% endif %}
+          </li>
+          {% for page in num_pages %}
+            {% if cur_page == page %}
+              <li class="page-item active" aria-current="page">
+                <a class="page-link" href="#">{{page}}<span class="sr-only">(current)</span></a>
+              </li>
+            {% else %}
+              <li class="page-item"><a class="page-link" href="index{{page}}.html">{{page}}</a></li>
+            {% endif %}
+          {% endfor %}
+          <li class="page-item">
+            {% if cur_page == num_pages[-1] %}
+              <a class="page-link" href="#" aria-label="Previous">Следующая
+            {% else %}
+              <a class="page-link" href="index{{cur_page+1}}.html" aria-label="Next">Следующая
+            {% endif %}
             </a>
-          </a>
-        </li>
-      </ul>
-    </nav>
+            </a>
+          </li>
+        </ul>
+      </nav>
       <div class="row">
         {% for pairbooks in books %}
           {% for book in pairbooks %}
-          <div class="col"> 
-            <div class="card mb-3" style="max-width: 540px;">
-              <div class="row no-gutters">
-                <div class="col-md-4">
+            <div class="col"> 
+              <div class="card mb-3" style="max-width: 540px;">
+                <div class="row no-gutters">
+                  <div class="col-md-4">
                     <img src="{{book['img_src']}}" class="card-img" alt="{{book['title']}}">
-                </div>
-                <div class="col-md-8">
-                  <div class="card-body">
-                    <h5 class="card-title">{{book['author']}}</h5>
-                    <p class="card-text">{{book['title']}}</p>
-                    <h6>
-                    {% for genre in book["genres"] %}
-                      <span class="badge badge-light">{{genre}}</span>
-                    {% endfor %}
-                    </h6>
-                    <p class="card-text"><a href={{book["book_path"]}} target="_blank">Читать</a></p>
+                  </div>
+                  <div class="col-md-8">
+                    <div class="card-body">
+                      <h5 class="card-title">{{book['author']}}</h5>
+                      <p class="card-text">{{book['title']}}</p>
+                      <h6>
+                        {% for genre in book["genres"] %}
+                          <span class="badge badge-light">{{genre}}</span>
+                        {% endfor %}
+                      </h6>
+                      <p class="card-text"><a href={{book["book_path"]}} target="_blank">Читать</a></p>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
           {% endfor %}
           <div class="w-100"></div>
         {% endfor %}
