@@ -44,8 +44,11 @@ def download_image(url, filename, folder='media/images/'):
 def parse_book_page(response):
     html_content = response.content
     soup = BeautifulSoup(html_content, 'lxml')
+    if "Текст этой книги отсутствует" in str(soup) or "это ознакомительный фрагмент" in str(soup):
+        return None
     title = soup.select_one("title")
     genres, comments = [], []
+
     image_url = urljoin(response.url,
                         soup.select_one('.bookimage a img')['src'])
     for genre in soup.select(".d_book"):
@@ -134,10 +137,11 @@ def main():
                 response.raise_for_status()
                 check_for_redirect(response.url)
                 book = parse_book_page(response)
+                if not book:
+                    break
                 books.append(book)
                 url_path = urlparse(book_url).path
                 index = url_path[url_path.find('b')+1:-1]
-
                 params, filename = {"id": index}, f'{index}. {book["title"]}.txt'
                 folder_book = 'media/books/'
                 folder_image = 'media/images/'
@@ -146,10 +150,10 @@ def main():
                     folder_book = f'{args.dest_folder}/media/books/'.strip()
                     folder_image = f'{args.dest_folder}/media/images'.strip()
                     folder_json = f'{args.dest_folder}/'.strip()
-                if args.skip_imgs:
-                    download_txt('https://tululu.org/txt.php',  params, filename, folder_book)
-                if args.skip_txt:
-                    download_image(book['img_url'], f'{index}.jpg', folder_image)
+                #if args.skip_imgs:
+                download_txt('https://tululu.org/txt.php',  params, filename, folder_book)
+                #if args.skip_txt:
+                download_image(book['img_url'], f'{index}.jpg', folder_image)
                 break
 
             except requests.exceptions.HTTPError:
