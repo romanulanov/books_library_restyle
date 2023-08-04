@@ -1,3 +1,4 @@
+import argparse
 import json
 import math
 import os
@@ -8,13 +9,22 @@ from more_itertools import chunked
 
 
 def main():
+    parser = argparse.ArgumentParser(
+        description='')
+    parser.add_argument('--dest_json',
+                        default="books.json",
+                        type=str,
+                        help='Введите путь к каталогу с данными сайта (по умолчанию стоит файл books.json из корня проекта)',
+                        )
+    args = parser.parse_args()
+
     env = Environment(
         loader=FileSystemLoader('.'),
         autoescape=select_autoescape(['html', 'xml'])
     )
     template = env.get_template('template.html')
 
-    with open('books.json', encoding='utf-8') as json_file:
+    with open(args.dest_json, encoding='utf-8') as json_file:
         books = json.load(json_file)
     num_pages = math.ceil(len(books)/10)
     books = list(chunked(books, 10))
