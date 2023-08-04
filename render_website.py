@@ -8,6 +8,10 @@ from livereload import Server, shell
 from more_itertools import chunked
 
 
+NUM_ROWS = 2
+NUM_BOOKS_PER_PAGE = 10
+
+
 def main():
     parser = argparse.ArgumentParser(
         description='')
@@ -26,12 +30,12 @@ def main():
 
     with open(args.dest_json, encoding='utf-8') as json_file:
         books = json.load(json_file)
-    num_pages = math.ceil(len(books)/10)
-    books = list(chunked(books, 10))
+    num_pages = math.ceil(len(books)/NUM_BOOKS_PER_PAGE)
+    books = list(chunked(books, NUM_BOOKS_PER_PAGE))
     os.makedirs('pages/', exist_ok=True)
 
     for index, books in enumerate(books, 1):
-        rendered_page = template.render(books=list(chunked(books, 2)),
+        rendered_page = template.render(books=list(chunked(books, NUM_ROWS)),
                                         num_pages=range(1, num_pages+1),
                                         cur_page=index,
                                         )
