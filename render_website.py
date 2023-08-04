@@ -39,7 +39,7 @@ def main():
                                         num_pages=range(1, num_pages+1),
                                         cur_page=index,
                                         )
-        with open(f'pages/index{index}.html', 'w', encoding="utf8") as file:
+        with open(f'pages/index{index}.html', 'w', encoding='utf8') as file:
             file.write(rendered_page)
 
     server = Server()
