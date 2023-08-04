@@ -62,7 +62,7 @@ def parse_book_page(response):
         "author": title.text.partition(' - ')[2].split(',')[0].strip(),
         "img_url": image_url,
         "img_src": f"/media/images/{response.url.split('/b')[1][:-1]}.jpg",
-        "book_path": quote(f"/media/books/{response.url.split('/b')[1][:-1]}. {title.text.partition(' - ')[0].strip()}.txt"),
+        "book_path": f"/media/books/{response.url.split('/b')[1][:-1]}. {title.text.partition(' - ')[0].strip()}.txt",
         "comments": comments,
         "genres": genres,
         }
